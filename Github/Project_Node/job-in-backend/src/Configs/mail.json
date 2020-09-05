@@ -1,0 +1,7 @@
+{
+    "host": "smtp.gmail.com",
+    "port": 465,
+    "secure": true,
+    "user": "friend.nativejs@gmail.com",
+    "pass": "jesus2020"
+}
