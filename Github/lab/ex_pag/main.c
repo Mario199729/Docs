@@ -29,6 +29,7 @@ void read_png_file(char *file_name, struct Png *image) {
     if (!fp){
         // Some error handling: file could not be opened
     }
+    
 
     fread(header, 1, 8, fp);
     if (png_sig_cmp(header, 0, 8)){
@@ -176,14 +177,14 @@ void setColors(png_byte *ptr, int rgba[]){
 
 void write_triangle(struct Png *image,int rgba[], char fill){
 
-	int x, y, k = 0, pixels = 8;
+	int x, y, k = 0, pixels = 8, count = 0;
 	
 	if (png_get_color_type(image->png_ptr, image->info_ptr) == PNG_COLOR_TYPE_RGB){
-        	// Some error handling: input file is PNG_COLOR_TYPE_RGB but must be PNG_COLOR_TYPE_RGBA
+        	// Some error handling: input file is PNG_COLOR_TYPE_RGB but must be 			PNG_COLOR_TYPE_RGBA
     }
     
     if (png_get_color_type(image->png_ptr, image->info_ptr) != PNG_COLOR_TYPE_RGBA){
-    // Some error handling: color_type of input file must be PNG_COLOR_TYPE_RGBA
+    	// Some error handling: color_type of input file must be PNG_COLOR_TYPE_RGBA
     }
 
     for(y = 0; y < image->height; y++){
@@ -209,10 +210,102 @@ void write_triangle(struct Png *image,int rgba[], char fill){
                     if(((int)(image->width/2) - k <= -3)&&((int)(image->width/2) - k >= -pixels)){
                         setColors(ptr, rgba);					
                     }
-                }			
+                    if((x == (int)(image->width/2)) && ((int)(image->width/2) - k >= -pixels))
+                		count++;
+                }		
             }
         }k++;
     }
+}
+
+void write_square(struct Png *image, int rgba[], char fill){
+
+	int x, y, k = 0, pixels = 8, count = 0;
+	
+	if (png_get_color_type(image->png_ptr, image->info_ptr) == PNG_COLOR_TYPE_RGB){
+        	// Some error handling: input file is PNG_COLOR_TYPE_RGB but must be 			PNG_COLOR_TYPE_RGBA
+    }
+    
+    if (png_get_color_type(image->png_ptr, image->info_ptr) != PNG_COLOR_TYPE_RGBA){
+    	// Some error handling: color_type of input file must be PNG_COLOR_TYPE_RGBA
+    }
+	for(int h = (int)image->width/2; h >= 0; h--, count++);
+	
+	fill = 'n';
+    for(y = 0; y < image->height; y++){
+        png_byte *row = image->row_pointers[y];
+        for (x = 0; x < image->width; x++){
+            png_byte *ptr = &(row[x * 4]);
+            if(y <= 4){
+                if((x >= (int)(image->width/2 - y)) && (x <= (int)(image->width/2 + y)) &&  ((int)(image->width/2) - y >= 0)){
+                    rgba[0] = 124;
+			 		rgba[1] = 0;
+			 		rgba[2] = 200;
+			 		rgba[3] = 255;
+                    setColors(ptr, rgba);
+                }
+            }else{
+                if(fill == 'y' || fill == 'Y'){
+                    if((x >= (int)(image->width/2 - y)) && (x <= (int)(image->width/2 + y)) &&  ((int)(image->width/2) - y >= 0)){
+                        rgba[0] = 124;
+				 		rgba[1] = 0;
+				 		rgba[2] = 200;
+				 		rgba[3] = 255;
+                        setColors(ptr, rgba);
+                    }
+                }else{
+                    if((x >= (int)(image->width/2 - y)) && (x <= (int)(image->width/2 - y + pixels))){
+                        rgba[0] = 124;
+				 		rgba[1] = 0;
+				 		rgba[2] = 200;
+				 		rgba[3] = 255;                        
+                        setColors(ptr, rgba);				
+                    }
+                    if((x >= (int)(image->width/2 + y - pixels)) && (x <= (int)(image->width/2 + y))){
+                        rgba[0] = 124;
+				 		rgba[1] = 0;
+				 		rgba[2] = 200;
+				 		rgba[3] = 255;                        
+                        setColors(ptr, rgba);					
+                    }
+                    if(((int)(image->width/2) - y <= 0)&&((int)(image->width/2) - y >= -(pixels))){
+                        rgba[0] = 124;
+				 		rgba[1] = 0;
+				 		rgba[2] = 200;
+				 		rgba[3] = 255;                        
+                        setColors(ptr, rgba);					
+                    }
+                }		
+            }
+        }
+    }
+    
+    int control = 0, j = 0; 
+	for (y = 0, k = (int) image->width/2; y < image->height; y++, k--, j++) {
+        png_byte *row = image->row_pointers[y];
+        for (x = 0; x < image->width; x++) {
+            png_byte *ptr = &(row[x * 4]);
+	     	
+	     	if(y >= (int)count/2){
+	     	
+	     		if(control == 0){
+	     		
+	     		if(fill == 'Y' || fill == 'y')
+	     			control = k;
+	     		else
+	     			control = k + pixels;
+	     		}
+	     			
+	     		if((x > control) && (x < (image->width - control)) && y < count){
+			 		rgba[0] = 0;
+			 		rgba[1] = 0;
+			 		rgba[2] = 0;
+			 		rgba[3] = 255;
+			 		setColors(ptr, rgba);
+			 	}
+			}
+		}
+	}
 }
 
 int main(int argc, char **argv) {
@@ -229,8 +322,9 @@ int main(int argc, char **argv) {
     
     printf("\t========== Welcome to our programm ==========\n");
     printf("\t\t[1] -- To write triangle into photo\n");
-    // printf("\t\t[2] -- To write Square into photo\n");
+    printf("\t\t[2] -- To write Square into photo\n");
     printf("\t\t[3] -- To show a normal photo\n");
+    //printf("\t\t[4] -- TO collage\n");
     printf("\t\t[0] -- To shot down the programm\n");
     
     do{
@@ -292,15 +386,25 @@ int main(int argc, char **argv) {
             write_png_file(argv[2], &image);
             break;
     	     
-    	// case 2:
-        //     write_square(&image);
-        //     write_png_file(argv[2], &image);
-        //     break;
+    	 case 2:
+	 		rgba[0] = 124;
+	 		rgba[1] = 0;
+	 		rgba[2] = 200;
+	 		rgba[3] = 255;
+			write_square(&image, rgba, 'y');
+			write_png_file(argv[2], &image);
+			break;
     	    
+        /*case 4:
+            collage(&image, 2, 2);
+            write_png_file(argv[2], &image);
+            break; */
+            
         case 3:
             process_file(&image);
             write_png_file(argv[2], &image);
-            break; 
+            break;
+            
     	case 0:
             printf("bye, bye!\n"); 
             break;
