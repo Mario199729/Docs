@@ -175,9 +175,9 @@ void setColors(png_byte *ptr, int rgba[]){
     ptr[3] = rgba[3];
 }
 
-void write_triangle(struct Png *image,int rgba[], char fill){
+void write_triangle(struct Png *image, int rgba[], int rgba_line[], char fill){
 
-	int x, y, k = 0, pixels = 8, count = 0;
+	int x, y, pixels = 8;
 	
 	if (png_get_color_type(image->png_ptr, image->info_ptr) == PNG_COLOR_TYPE_RGB){
         	// Some error handling: input file is PNG_COLOR_TYPE_RGB but must be 			PNG_COLOR_TYPE_RGBA
@@ -187,101 +187,78 @@ void write_triangle(struct Png *image,int rgba[], char fill){
     	// Some error handling: color_type of input file must be PNG_COLOR_TYPE_RGBA
     }
 
-    for(y = 0; y < image->height; y++){
-        png_byte *row = image->row_pointers[y];
-        for (x = 0; x < image->width; x++){
-            png_byte *ptr = &(row[x * 4]);
-            if(y <= 4){
-                if((x >= (int)(image->width/2 - k)) && (x <= (int)(image->width/2 + k)) &&  ((int)(image->width/2) - k >= 0)){
-                    setColors(ptr, rgba);
-                }
-            }else{
-                if(fill == 'y' || fill == 'Y'){
-                    if((x >= (int)(image->width/2 - k)) && (x <= (int)(image->width/2 + k)) &&  ((int)(image->width/2) - k >= 0)){
-                        setColors(ptr, rgba);
-                    }
-                }else{
-                    if((x >= (int)(image->width/2 - k)) && (x <= (int)(image->width/2 - k + pixels))){
-                        setColors(ptr, rgba);				
-                    }
-                    if((x >= (int)(image->width/2 + k - pixels)) && (x <= (int)(image->width/2 + k))){
-                        setColors(ptr, rgba);					
-                    }
-                    if(((int)(image->width/2) - k <= -3)&&((int)(image->width/2) - k >= -pixels)){
-                        setColors(ptr, rgba);					
-                    }
-                    if((x == (int)(image->width/2)) && ((int)(image->width/2) - k >= -pixels))
-                		count++;
-                }		
-            }
-        }k++;
-    }
-}
-
-void write_square(struct Png *image, int rgba[], char fill){
-
-	int x, y, k = 0, pixels = 8, count = 0;
-	
-	if (png_get_color_type(image->png_ptr, image->info_ptr) == PNG_COLOR_TYPE_RGB){
-        	// Some error handling: input file is PNG_COLOR_TYPE_RGB but must be 			PNG_COLOR_TYPE_RGBA
-    }
-    
-    if (png_get_color_type(image->png_ptr, image->info_ptr) != PNG_COLOR_TYPE_RGBA){
-    	// Some error handling: color_type of input file must be PNG_COLOR_TYPE_RGBA
-    }
-	for(int h = (int)image->width/2; h >= 0; h--, count++);
-	
-	fill = 'n';
     for(y = 0; y < image->height; y++){
         png_byte *row = image->row_pointers[y];
         for (x = 0; x < image->width; x++){
             png_byte *ptr = &(row[x * 4]);
             if(y <= 4){
                 if((x >= (int)(image->width/2 - y)) && (x <= (int)(image->width/2 + y)) &&  ((int)(image->width/2) - y >= 0)){
-                    rgba[0] = 124;
-			 		rgba[1] = 0;
-			 		rgba[2] = 200;
-			 		rgba[3] = 255;
+                    setColors(ptr, rgba_line);
+                }
+            }else{
+                if(fill == 'y' || fill == 'Y'){
+                    if((x >= (int)(image->width/2 - y + pixels)) && (x <= (int)(image->width/2 + y -pixels)) &&  ((int)(image->width/2) - y >= 0)){
+                        setColors(ptr, rgba);
+                    }else{
+                        if((x >= (int)(image->width/2 - y)) && (x <= (int)(image->width/2 - y + pixels))){
+                            setColors(ptr, rgba_line);				
+                        }
+                        if((x >= (int)(image->width/2 + y - pixels)) && (x <= (int)(image->width/2 + y))){
+                            setColors(ptr, rgba_line);					
+                        }
+                        if(((int)(image->width/2) - y <= 0)&&((int)(image->width/2) - y >= -pixels)){
+                            setColors(ptr, rgba_line);					
+                        }
+                    }
+                }else{
+                    if((x >= (int)(image->width/2 - y)) && (x <= (int)(image->width/2 - y + pixels))){
+                        setColors(ptr, rgba_line);				
+                    }
+                    if((x >= (int)(image->width/2 + y - pixels)) && (x <= (int)(image->width/2 + y))){
+                        setColors(ptr, rgba_line);					
+                    }
+                    if(((int)(image->width/2) - y <= 0)&&((int)(image->width/2) - y >= -pixels)){
+                        setColors(ptr, rgba_line);					
+                    }
+                }		
+            }
+        }
+    }
+}
+
+void write_rectangle(struct Png *image, int rgba[], int rgba_rectangle[]){ 
+	int x, y, pixels = 8, count = 0, k = 0;
+    char  fill = 'y';
+	
+	if (png_get_color_type(image->png_ptr, image->info_ptr) == PNG_COLOR_TYPE_RGB){
+        
+    }
+    
+    if (png_get_color_type(image->png_ptr, image->info_ptr) != PNG_COLOR_TYPE_RGBA){
+    	// Some error handling: color_type of input file must be PNG_COLOR_TYPE_RGBA
+    }
+	for(int h = (int)image->width/2; h >= 0; h--, count++);
+    
+    for(y = 0; y < image->height; y++){
+        png_byte *row = image->row_pointers[y];
+        for (x = 0; x < image->width; x++){
+            png_byte *ptr = &(row[x * 4]);
+            if(y <= 4){
+                if((x >= (int)(image->width/2 - y)) && (x <= (int)(image->width/2 + y)) &&  ((int)(image->width/2) - y >= 0)){
                     setColors(ptr, rgba);
                 }
             }else{
                 if(fill == 'y' || fill == 'Y'){
                     if((x >= (int)(image->width/2 - y)) && (x <= (int)(image->width/2 + y)) &&  ((int)(image->width/2) - y >= 0)){
-                        rgba[0] = 124;
-				 		rgba[1] = 0;
-				 		rgba[2] = 200;
-				 		rgba[3] = 255;
                         setColors(ptr, rgba);
-                    }
-                }else{
-                    if((x >= (int)(image->width/2 - y)) && (x <= (int)(image->width/2 - y + pixels))){
-                        rgba[0] = 124;
-				 		rgba[1] = 0;
-				 		rgba[2] = 200;
-				 		rgba[3] = 255;                        
-                        setColors(ptr, rgba);				
-                    }
-                    if((x >= (int)(image->width/2 + y - pixels)) && (x <= (int)(image->width/2 + y))){
-                        rgba[0] = 124;
-				 		rgba[1] = 0;
-				 		rgba[2] = 200;
-				 		rgba[3] = 255;                        
-                        setColors(ptr, rgba);					
-                    }
-                    if(((int)(image->width/2) - y <= 0)&&((int)(image->width/2) - y >= -(pixels))){
-                        rgba[0] = 124;
-				 		rgba[1] = 0;
-				 		rgba[2] = 200;
-				 		rgba[3] = 255;                        
-                        setColors(ptr, rgba);					
                     }
                 }		
             }
         }
     }
     
-    int control = 0, j = 0; 
-	for (y = 0, k = (int) image->width/2; y < image->height; y++, k--, j++) {
+    int control = 0; 
+	for (y = 0, k = (int) image->width/2; y < image->height; y++, k--) {
         png_byte *row = image->row_pointers[y];
         for (x = 0; x < image->width; x++) {
             png_byte *ptr = &(row[x * 4]);
@@ -296,39 +273,35 @@ void write_square(struct Png *image, int rgba[], char fill){
 	     			control = k + pixels;
 	     		}
 	     			
-	     		if((x > control) && (x < (image->width - control)) && y < count){
-			 		rgba[0] = 0;
-			 		rgba[1] = 0;
-			 		rgba[2] = 0;
-			 		rgba[3] = 255;
-			 		setColors(ptr, rgba);
+	     		if((x > control) && (x < (image->width - control)) && y <= (count-1)){
+			 		setColors(ptr, rgba_rectangle);
 			 	}
 			}
 		}
 	}
 }
 
-void colors(int rgba[], int color){
+void colors(int *rgba, int color){
 	switch(color){
 		case 0:
-            *rgba[0] = 255;
-            *rgba[1] = 0;
-            *rgba[2] = 0;
-            *rgba[3] = 255;
+            rgba[0] = 255;
+            rgba[1] = 0;
+            rgba[2] = 0;
+            rgba[3] = 255;
             break;
 		     
 		case 1:
-            *rgba[0] = 0;
-            *rgba[1] = 255;
-            *rgba[2] = 0;
-            *rgba[3] = 255;
+            rgba[0] = 0;
+            rgba[1] = 255;
+            rgba[2] = 0;
+            rgba[3] = 255;
             break;
 		     
 		case 2:
-            *rgba[0] = 0;
-            *rgba[1] = 0;
-            *rgba[2] = 255;
-            *rgba[3] = 255;
+            rgba[0] = 0;
+            rgba[1] = 0;
+            rgba[2] = 255;
+            rgba[3] = 255;
             break;     
 	}
 }
@@ -341,13 +314,17 @@ int main(int argc, char **argv) {
     }
 
     char fill;
-    int color, color_line, color_rectangle, rgba[4], rgba_line[4], rgba_rectangle[4], op;
+    int color, color_line, color_rectangle, op;
+    int *rgba = calloc(4, sizeof(int));
+    int *rgba_line = calloc(4, sizeof(int));
+    int *rgba_rectangle = calloc(4, sizeof(int));
+
     struct Png image;
     read_png_file(argv[1], &image);
     
     printf("\t========== Welcome to our programm ==========\n");
     printf("\t\t[1] -- To write triangle into photo\n");
-    printf("\t\t[2] -- To write Square into photo\n");
+    printf("\t\t[2] -- To write rectangle into photo\n");
     printf("\t\t[3] -- To show a normal photo\n");
     //printf("\t\t[4] -- TO collage\n");
     printf("\t\t[0] -- To shot down the programm\n");
@@ -363,107 +340,73 @@ int main(int argc, char **argv) {
 
     switch(op){
     	case 1:
+            do {
+    			printf("\nColor line\n");
+    			printf("[0] <--> for red\n");
+    			printf("[1] <--> for green\n");
+    			printf("[2] <--> for blue\n");
+    			scanf("%d", &color_line);
+    			
+	    		if(color_line != 0 && color_line != 1 && color_line != 2)
+	    			printf("Invalid option! try again.\n");
+    			
+    		}while(color_line != 0 && color_line != 1 && color_line != 2);
+            colors(rgba_line, color_line);
+
     		do {
     			printf("Do you want to fill the triangle?[y/n]: ");
 	    		scanf("%c", &fill);
 
 	    		if(fill != 'y' && fill != 'Y' && fill != 'n' && fill != 'N')
-	    			printf("Invalid option! try again.\n\n");
+	    			printf("Invalid option! try again.\n");
 	    		
     		}while(fill != 'y' && fill != 'Y' && fill != 'n' && fill != 'N'); 
-    		
-    		do {
-    			printf("\n\nWhich color do want to show the traingle?\n");
-    			printf("[0] <--> for red\n");
-    			printf("[1] <--> for green\n");
-    			printf("[2] <--> for blue\n");
-    			scanf("%d", &color);
-    			
-	    		if(color != 0 && color != 1 && color != 2)
-	    			printf("Invalid option! try again.\n\n");
-    			
-    		}while(color != 0 && color != 1 && color != 2);
-    		
-    		colors(&rgba, color);
-    		
-            write_triangle(&image, rgba, fill);
+    		if(fill == 'y' || fill == 'Y'){
+                do {
+                    printf("\n\nWhich color do want to fill the traingle?\n");
+                    printf("[0] <--> for red\n");
+                    printf("[1] <--> for green\n");
+                    printf("[2] <--> for blue\n");
+                    scanf("%d", &color);
+                    
+                    if(color != 0 && color != 1 && color != 2)
+                        printf("Invalid option! try again.\n\n");
+                    
+                }while(color != 0 && color != 1 && color != 2);
+                colors(rgba, color);
+            }
+            write_triangle(&image, rgba, rgba_line, fill);
             write_png_file(argv[2], &image);
             break;
     	     
     	 case 2:
     	 	do {
-    			
-    			printf("\tWhich color do you want to find a rectangle?\n");
-    			printf("\t\t[0] <--> for red\n");
-    			printf("\t\t[1] <--> for green\n");
-    			printf("\t\t[2] <--> for blue\n");
+    			printf("\nIn which color do you want to find a rectangle?\n");
+    			printf("\t[0] <--> for red\n");
+    			printf("\t[1] <--> for green\n");
+    			printf("\t[2] <--> for blue\n");
     			scanf("%d", &color);
     			
 	    		if(color != 0 && color != 1 && color != 2)
-	    			printf("Invalid option! try again.\n\n");
+	    			printf("Invalid option! try again.\n");
 	    		
     		}while(color != 0 && color != 1 && color != 2);
+    		colors(rgba, color);
     		
     		do {
-    			
-    			printf("\tWhich color do you want to fill a rectangle?\n");
-    			printf("\t\t[0] <--> for red\n");
-    			printf("\t\t[1] <--> for green\n");
-    			printf("\t\t[2] <--> for blue\n");
+    			printf("\nWhich color do you want to fill a rectangle?\n");
+    			printf("\t[0] <--> for red\n");
+    			printf("\t[1] <--> for green\n");
+    			printf("\t[2] <--> for blue\n");
     			scanf("%d", &color_rectangle);
     			
 	    		if(color_rectangle != 0 && color_rectangle != 1 && color_rectangle != 2)
-	    			printf("Invalid option! try again.\n\n");
+	    			printf("Invalid option! try again.\n");
 	    		
     		}while(color_rectangle != 0 && color_rectangle != 1 && color_rectangle != 2);
-    		
-    		switch(color){
-    			case 0:
-                    rgba[0] = 255;
-                    rgba[1] = 0;
-                    rgba[2] = 0;
-                    rgba[3] = 255;
-                    break;
-    			     
-    			case 1:
-                    rgba[0] = 0;
-                    rgba[1] = 255;
-                    rgba[2] = 0;
-                    rgba[3] = 255;
-                    break;
-    			     
-    			case 2:
-                    rgba[0] = 0;
-                    rgba[1] = 0;
-                    rgba[2] = 255;
-                    rgba[3] = 255;
-                    break;     
-    		}
-    		
-    		switch(color_rectangle){
-    			case 0:
-                    rgba[0] = 255;
-                    rgba[1] = 0;
-                    rgba[2] = 0;
-                    rgba[3] = 255;
-                    break;
-    			     
-    			case 1:
-                    rgba[0] = 0;
-                    rgba[1] = 255;
-                    rgba[2] = 0;
-                    rgba[3] = 255;
-                    break;
-    			     
-    			case 2:
-                    rgba[0] = 0;
-                    rgba[1] = 0;
-                    rgba[2] = 255;
-                    rgba[3] = 255;
-                    break;     
-    		}
+    		colors(rgba_rectangle, color_rectangle);
     	
-			write_square(&image, rgba, 'y');
+			write_rectangle(&image, rgba, rgba_rectangle);
 			write_png_file(argv[2], &image);
 			break;
     	    
