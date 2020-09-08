@@ -308,6 +308,31 @@ void write_square(struct Png *image, int rgba[], char fill){
 	}
 }
 
+void colors(int rgba[], int color){
+	switch(color){
+		case 0:
+            *rgba[0] = 255;
+            *rgba[1] = 0;
+            *rgba[2] = 0;
+            *rgba[3] = 255;
+            break;
+		     
+		case 1:
+            *rgba[0] = 0;
+            *rgba[1] = 255;
+            *rgba[2] = 0;
+            *rgba[3] = 255;
+            break;
+		     
+		case 2:
+            *rgba[0] = 0;
+            *rgba[1] = 0;
+            *rgba[2] = 255;
+            *rgba[3] = 255;
+            break;     
+	}
+}
+
 int main(int argc, char **argv) {
 
     if (argc != 3){
@@ -316,7 +341,7 @@ int main(int argc, char **argv) {
     }
 
     char fill;
-    int color, rgba[4], op;
+    int color, color_line, color_rectangle, rgba[4], rgba_line[4], rgba_rectangle[4], op;
     struct Png image;
     read_png_file(argv[1], &image);
     
@@ -359,6 +384,39 @@ int main(int argc, char **argv) {
     			
     		}while(color != 0 && color != 1 && color != 2);
     		
+    		colors(&rgba, color);
+    		
+            write_triangle(&image, rgba, fill);
+            write_png_file(argv[2], &image);
+            break;
+    	     
+    	 case 2:
+    	 	do {
+    			
+    			printf("\tWhich color do you want to find a rectangle?\n");
+    			printf("\t\t[0] <--> for red\n");
+    			printf("\t\t[1] <--> for green\n");
+    			printf("\t\t[2] <--> for blue\n");
+    			scanf("%d", &color);
+    			
+	    		if(color != 0 && color != 1 && color != 2)
+	    			printf("Invalid option! try again.\n\n");
+	    		
+    		}while(color != 0 && color != 1 && color != 2);
+    		
+    		do {
+    			
+    			printf("\tWhich color do you want to fill a rectangle?\n");
+    			printf("\t\t[0] <--> for red\n");
+    			printf("\t\t[1] <--> for green\n");
+    			printf("\t\t[2] <--> for blue\n");
+    			scanf("%d", &color_rectangle);
+    			
+	    		if(color_rectangle != 0 && color_rectangle != 1 && color_rectangle != 2)
+	    			printf("Invalid option! try again.\n\n");
+	    		
+    		}while(color_rectangle != 0 && color_rectangle != 1 && color_rectangle != 2);
+    		
     		switch(color){
     			case 0:
                     rgba[0] = 255;
@@ -382,15 +440,29 @@ int main(int argc, char **argv) {
                     break;     
     		}
     		
-            write_triangle(&image, rgba, fill);
-            write_png_file(argv[2], &image);
-            break;
-    	     
-    	 case 2:
-	 		rgba[0] = 124;
-	 		rgba[1] = 0;
-	 		rgba[2] = 200;
-	 		rgba[3] = 255;
+    		switch(color_rectangle){
+    			case 0:
+                    rgba[0] = 255;
+                    rgba[1] = 0;
+                    rgba[2] = 0;
+                    rgba[3] = 255;
+                    break;
+    			     
+    			case 1:
+                    rgba[0] = 0;
+                    rgba[1] = 255;
+                    rgba[2] = 0;
+                    rgba[3] = 255;
+                    break;
+    			     
+    			case 2:
+                    rgba[0] = 0;
+                    rgba[1] = 0;
+                    rgba[2] = 255;
+                    rgba[3] = 255;
+                    break;     
+    		}
+    	
 			write_square(&image, rgba, 'y');
 			write_png_file(argv[2], &image);
 			break;
