@@ -6,8 +6,6 @@
 #define PNG_DEBUG 3
 #include <png.h>
 
-
-
 struct Png{
     int width, height;
     png_byte color_type;
@@ -18,6 +16,13 @@ struct Png{
     int number_of_passes;
     png_bytep *row_pointers;
 };
+
+void write_triangle(struct Png *image, int rgba[], int rgba_line[], char fill);
+void write_rectangle(struct Png *image, int rgba[], int rgba_rectangle[]);
+void makeCollage(struct Png *image, int n, int m);
+void setColors(png_byte *ptr, int rgba[]);
+void colors(int *rgba, int color);
+int chooseColor();
 
 
 void read_png_file(char *file_name, struct Png *image) {
@@ -80,8 +85,6 @@ void read_png_file(char *file_name, struct Png *image) {
 
     fclose(fp);
 }
-
-
 void write_png_file(char *file_name, struct Png *image) {
     int x,y;
     /* create file */
@@ -144,36 +147,6 @@ void write_png_file(char *file_name, struct Png *image) {
     fclose(fp);
 }
 
-void process_file(struct Png *image) {
-    int x,y;
-    if (png_get_color_type(image->png_ptr, image->info_ptr) == PNG_COLOR_TYPE_RGB){
-        // Some error handling: input file is PNG_COLOR_TYPE_RGB but must be PNG_COLOR_TYPE_RGBA
-    }
-    
-    if (png_get_color_type(image->png_ptr, image->info_ptr) != PNG_COLOR_TYPE_RGBA){
-        // Some error handling: color_type of input file must be PNG_COLOR_TYPE_RGBA
-    }
-
-    for (y = 0; y < image->height; y++) {
-        png_byte *row = image->row_pointers[y];
-        for (x = 0; x < image->width; x++) {
-             png_byte *ptr = &(row[x * 4]);
-	     
-	     printf("Pixel at position [ %d - %d ] has RGBA values: %d - %d - %d - %d\n",
-	     x, y, ptr[0], ptr[1], ptr[2], ptr[3]);
-      	     //set red value to 0 and green value to the blue one
-	     ptr[0] = 0;
-	     ptr[1] = ptr[2];
-        }
-    }
-}
-
-void setColors(png_byte *ptr, int rgba[]){
-    ptr[0] = rgba[0];
-    ptr[1] = rgba[1];
-    ptr[2] = rgba[2];
-    ptr[3] = rgba[3];
-}
 
 void write_triangle(struct Png *image, int rgba[], int rgba_line[], char fill){
 
@@ -281,6 +254,37 @@ void write_rectangle(struct Png *image, int rgba[], int rgba_rectangle[]){
 	}
 }
 
+void makeCollage(struct Png *image, int n, int m)
+{
+    int height = image->height;
+    int width = image->width;
+    png_bytep *rowPointers = (png_bytep *)malloc(height * sizeof(png_bytep));
+    for (int y = 0; y < height; y++)
+    {
+        rowPointers[y] = (png_byte *)malloc(width * 4 * sizeof(png_byte));
+        for (int x = 0; x < width * 4; x++)
+            rowPointers[y][x] = image->row_pointers[y][x];
+    }
+    image->height *= m;
+    image->width *= n;
+    image->row_pointers = (png_bytep *)calloc(image->height, sizeof(png_bytep));
+    
+    for (int y = 0; y < height; y++)
+        image->row_pointers[y] = (png_byte *)calloc(image->width * 4, sizeof(png_byte));
+    for (int y = height; y < image->height; y++)
+        image->row_pointers[y] = (png_byte *)malloc(image->width * 4 * sizeof(png_byte));
+    int x = 0, y = 0;
+    for (int j = 0; j < m; j++)
+        for (int i = 0; i < n; i++)
+            for (int y = 0; y < height; y++)
+                for (int x = 0; x < width * 4; x++)
+                    image->row_pointers[y + (j * height)][x + (i * width * 4)] = rowPointers[y][x];
+    for (int y = 0; y < height; y++)
+        free(rowPointers[y]);
+    free(rowPointers);
+}
+
+
 void colors(int *rgba, int color){
 	switch(color){
 		case 0:
@@ -289,51 +293,117 @@ void colors(int *rgba, int color){
             rgba[2] = 0;
             rgba[3] = 255;
             break;
-		     
 		case 1:
             rgba[0] = 0;
             rgba[1] = 255;
             rgba[2] = 0;
             rgba[3] = 255;
             break;
-		     
 		case 2:
             rgba[0] = 0;
             rgba[1] = 0;
             rgba[2] = 255;
             rgba[3] = 255;
-            break;     
+            break;
+        case 3:
+            rgba[0] = 134;
+            rgba[1] = 0;
+            rgba[2] = 255;
+            rgba[3] = 255;
+        case 4:
+            rgba[0] = 134;
+            rgba[1] = 0;
+            rgba[2] = 255;
+            rgba[3] = 255;
+        case 5:
+            rgba[0] = 134;
+            rgba[1] = 0;
+            rgba[2] = 255;
+            rgba[3] = 255;
+        case 6:
+            rgba[0] = 134;
+            rgba[1] = 0;
+            rgba[2] = 255;
+            rgba[3] = 255;
+        case 7:
+            rgba[0] = 134;
+            rgba[1] = 0;
+            rgba[2] = 255;
+            rgba[3] = 255;
+        case 8:
+            rgba[0] = 134;
+            rgba[1] = 0;
+            rgba[2] = 255;
+            rgba[3] = 255;
+        case 9:
+            rgba[0] = 134;
+            rgba[1] = 0;
+            rgba[2] = 255;
+            rgba[3] = 255;
+        case 10:
+            rgba[0] = 134;
+            rgba[1] = 0;
+            rgba[2] = 255;
+            rgba[3] = 255;
+        case 11:
+            rgba[0] = 134;
+            rgba[1] = 0;
+            rgba[2] = 255;
+            rgba[3] = 255;
+        case 12:
+            rgba[0] = 134;
+            rgba[1] = 0;
+            rgba[2] = 255;
+            rgba[3] = 255;
+        case 13:
+            rgba[0] = 134;
+            rgba[1] = 0;
+            rgba[2] = 255;
+            rgba[3] = 255;
+        case 14:
+            rgba[0] = 134;
+            rgba[1] = 0;
+            rgba[2] = 255;
+            rgba[3] = 255;
+        case 15:
+            rgba[0] = 134;
+            rgba[1] = 0;
+            rgba[2] = 255;
+            rgba[3] = 255;
 	}
 }
 
-void makeCollage(struct Png *image, int n, int m, int colorType)
-{
-    int height = image->height;
-    int width = image->width;
-    png_bytep *rowPointers = (png_bytep *)malloc(height * sizeof(png_bytep));
-    for (int y = 0; y < height; y++)
-    {
-        rowPointers[y] = (png_byte *)malloc(width * colorType * sizeof(png_byte));
-        for (int x = 0; x < width * colorType; x++)
-            rowPointers[y][x] = image->row_pointers[y][x];
-    }
-    image->height *= m;
-    image->width *= n;
-    image->row_pointers = (png_bytep *)calloc(image->height, sizeof(png_bytep));
+void setColors(png_byte *ptr, int rgba[]){
+    ptr[0] = rgba[0];
+    ptr[1] = rgba[1];
+    ptr[2] = rgba[2];
+    ptr[3] = rgba[3];
+}
+
+/*Menupara escolher uma cor de linha */
+int chooseColor(){
+
+    int color_line;
+    printf("[0] --> for red\n");
+    printf("[1] --> for green\n");
+    printf("[2] --> for blue\n");
+    printf("[3] --> for yellow\n");
+    printf("[4] --> for orange\n");
+    printf("[5] --> for purple\n");
+    printf("[6] --> for teal\n");
+    printf("[7] --> for lime\n");
+    printf("[8] --> for brown\n");
+    printf("[9] --> for magenta\n");
+    printf("[10] --> for pink\n");
+    printf("[11] --> for turquoise\n");
+    printf("[12] --> for gold\n");
+    printf("[13] --> for silver\n");
+    printf("[14] --> for black\n");
+    printf("[15] --> for white\n");
+    printf(" Type your option: ");
+    scanf("%d", &color_line);
     
-    for (int y = 0; y < height; y++)
-        image->row_pointers[y] = (png_byte *)calloc(image->width * colorType, sizeof(png_byte));
-    for (int y = height; y < image->height; y++)
-        image->row_pointers[y] = (png_byte *)malloc(image->width * colorType * sizeof(png_byte));
-    int x = 0, y = 0;
-    for (int j = 0; j < m; j++)
-        for (int i = 0; i < n; i++)
-            for (int y = 0; y < height; y++)
-                for (int x = 0; x < width * colorType; x++)
-                    image->row_pointers[y + (j * height)][x + (i * width * colorType)] = rowPointers[y][x];
-    for (int y = 0; y < height; y++)
-        free(rowPointers[y]);
-    free(rowPointers);
+    return color_line;
 }
 
 int main(int argc, char **argv) {
@@ -344,21 +414,18 @@ int main(int argc, char **argv) {
     }
 
     char fill;
-    int color, color_line, color_rectangle, op;
+    int color, color_line, color_rectangle, op, N, M;
     int *rgba = calloc(4, sizeof(int));
     int *rgba_line = calloc(4, sizeof(int));
     int *rgba_rectangle = calloc(4, sizeof(int));
 
     struct Png image;
     read_png_file(argv[1], &image);
-    makeCollage(&image, 2, 3, 4);
-        write_png_file(argv[2], &image);
-    return 0;
     
     printf("\t========== Welcome to our programm ==========\n");
     printf("\t\t[1] -- To write triangle into photo\n");
     printf("\t\t[2] -- To write rectangle into photo\n");
-    printf("\t\t[3] -- To show a normal photo\n");
+    printf("\t\t[3] -- To collage of photo\n");
     //printf("\t\t[4] -- TO collage\n");
     printf("\t\t[0] -- To shot down the programm\n");
     
@@ -374,16 +441,13 @@ int main(int argc, char **argv) {
     switch(op){
     	case 1:
             do {
-    			printf("\nColor line\n");
-    			printf("[0] <--> for red\n");
-    			printf("[1] <--> for green\n");
-    			printf("[2] <--> for blue\n");
-    			scanf("%d", &color_line);
+                printf("\nLine color\n");
+                color_line = chooseColor();
     			
-	    		if(color_line != 0 && color_line != 1 && color_line != 2)
+	    		if(color_line < 0 || color_line > 3)
 	    			printf("Invalid option! try again.\n");
     			
-    		}while(color_line != 0 && color_line != 1 && color_line != 2);
+    		}while(color_line < 0 || color_line > 15);
             colors(rgba_line, color_line);
 
     		do {
@@ -397,15 +461,13 @@ int main(int argc, char **argv) {
     		if(fill == 'y' || fill == 'Y'){
                 do {
                     printf("\n\nWhich color do want to fill the traingle?\n");
-                    printf("[0] <--> for red\n");
-                    printf("[1] <--> for green\n");
-                    printf("[2] <--> for blue\n");
-                    scanf("%d", &color);
                     
-                    if(color != 0 && color != 1 && color != 2)
+                    color = chooseColor();
+                    
+                    if(color < 0 || color > 15)
                         printf("Invalid option! try again.\n\n");
                     
-                }while(color != 0 && color != 1 && color != 2);
+                }while(color < 0 || color > 15);
                 colors(rgba, color);
             }
             write_triangle(&image, rgba, rgba_line, fill);
@@ -442,14 +504,18 @@ int main(int argc, char **argv) {
 			write_rectangle(&image, rgba, rgba_rectangle);
 			write_png_file(argv[2], &image);
 			break;
-    	    
-        /*case 4:
-            collage(&image, 2, 2);
-            write_png_file(argv[2], &image);
-            break; */
             
         case 3:
-            process_file(&image);
+            do {
+                printf("How much photos on vertical: \n");
+                scanf("%d", &N);
+                printf("How much photos on horizontal: \n");
+                scanf("%d", &M);
+
+                if(N < 0 || M < 0)
+                    printf("Please, put number >= 0 ");
+            }while(N < 0 || M < 0);
+            makeCollage(&image, N, M);
             write_png_file(argv[2], &image);
             break;
             
@@ -457,5 +523,15 @@ int main(int argc, char **argv) {
             printf("bye, bye!\n"); 
             break;
     }
+
+    // for(int i = 0; i < 4*sizeof(int); i++){
+    //     free(rgba[i]);
+    //     free(rgba_line[i]);
+    //     free(rgba_rectangle[i]);
+    // }
+
+    free(rgba);
+    free(rgba_line);
+    free(rgba_rectangle);
     return 0;
 }
