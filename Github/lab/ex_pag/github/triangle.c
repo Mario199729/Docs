@@ -36,13 +36,17 @@ void fillArea(PNG *image, int x, int y, Color fill, Color line, int colorType)
 {
     png_byte *row = image->row_pointers[y];
     png_byte *ptr = &(row[x * colorType]);
-    if ((colorType == 4 && ptr[0] == line.red && ptr[1] == line.green && ptr[2] == line.blue && ptr[3] == line.alpha) || (colorType == 3 && ptr[0] == line.red &&
-                                                                                                                          ptr[1] == line.green && ptr[2] == line.blue))
+    if ((colorType == 4 && ptr[0] == line.red && ptr[1] == line.green 
+                        && ptr[2] == line.blue && ptr[3] == line.alpha) 
+                        || (colorType == 3 && ptr[0] == line.red &&
+                        ptr[1] == line.green && ptr[2] == line.blue))
     {
         return;
     }
-    if ((colorType == 4 && ptr[0] == fill.red && ptr[1] == fill.green && ptr[2] == fill.blue && ptr[3] == fill.alpha) || (colorType == 3 && ptr[0] == fill.red &&
-                                                                                                                          ptr[1] == fill.green && ptr[2] == fill.blue))
+    if ((colorType == 4 && ptr[0] == fill.red && ptr[1] == fill.green 
+                        && ptr[2] == fill.blue && ptr[3] == fill.alpha) 
+                        || (colorType == 3 && ptr[0] == fill.red &&
+                        ptr[1] == fill.green && ptr[2] == fill.blue))
     {
         return;
     }

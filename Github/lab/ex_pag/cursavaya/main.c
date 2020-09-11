@@ -148,7 +148,7 @@ void write_png_file(char *file_name, struct Png *image) {
 }
 
 
-void write_triangle(struct Png *image, int rgba[], int rgba_line[], char fill){
+/*void write_triangle(struct Png *image, int rgba[], int rgba_line[], char fill){
 
 	int x, y, pixels = 8;
 	
@@ -197,7 +197,47 @@ void write_triangle(struct Png *image, int rgba[], int rgba_line[], char fill){
             }
         }
     }
+}*/
+
+//***************************************
+void write_triangle(struct Png *image, int rgba[], int rgba_line[], char fill){
+	
+    int x0 = 430, y0 = 400, x1 = 130, y1 = 300;
+    int colorType;
+
+	if (png_get_color_type(image->png_ptr, image->info_ptr) == PNG_COLOR_TYPE_RGB)
+        colorType = 3;
+    
+    if (png_get_color_type(image->png_ptr, image->info_ptr) == PNG_COLOR_TYPE_RGBA)
+    	colorType = 4;
+
+    int j = x0;
+    int i = y0;
+    int dx = abs(x1 - x0);
+    int dy = abs(y1 - y0);
+    int controlx = (x0 < x1)? 1:-1;
+    int controly = (y0 < y1)? 1:-1;
+    int err = dx - dy;
+
+    for( ;(j != x1 || i != y1); )
+    {
+        png_byte*row  = image->row_pointers[i];
+        png_byte *ptr = &(row[j * colorType]);
+        setColors(ptr, rgba_line);
+
+        if (err * 2 > -dy)
+        {
+            err -= dy;
+            j += controlx;
+        }
+        else if (err * 2 < dx)
+        {
+            err += dx;
+            i += controly;
+        }
+    }
 }
+//***************************************
 
 void write_rectangle(struct Png *image, int rgba[], int rgba_rectangle[]){ 
 	int x, y, pixels = 8, count = 0, k = 0;
@@ -254,8 +294,7 @@ void write_rectangle(struct Png *image, int rgba[], int rgba_rectangle[]){
 	}
 }
 
-void makeCollage(struct Png *image, int n, int m)
-{
+void makeCollage(struct Png *image, int n, int m){
     int height = image->height;
     int width = image->width;
     png_bytep *rowPointers = (png_bytep *)malloc(height * sizeof(png_bytep));
@@ -284,7 +323,6 @@ void makeCollage(struct Png *image, int n, int m)
     free(rowPointers);
 }
 
-
 void colors(int *rgba, int color){
 	switch(color){
 		case 0:
@@ -306,70 +344,96 @@ void colors(int *rgba, int color){
             rgba[3] = 255;
             break;
         case 3:
-            rgba[0] = 134;
-            rgba[1] = 0;
-            rgba[2] = 255;
+            rgba[0] = 255;
+            rgba[1] = 255;
+            rgba[2] = 0;
             rgba[3] = 255;
+            break;
+
         case 4:
-            rgba[0] = 134;
-            rgba[1] = 0;
-            rgba[2] = 255;
+            rgba[0] = 1255;
+            rgba[1] = 165;
+            rgba[2] = 0;
             rgba[3] = 255;
+            break;
+
         case 5:
-            rgba[0] = 134;
+            rgba[0] = 128;
             rgba[1] = 0;
-            rgba[2] = 255;
+            rgba[2] = 128;
             rgba[3] = 255;
+            break;
+
         case 6:
-            rgba[0] = 134;
-            rgba[1] = 0;
-            rgba[2] = 255;
+            rgba[0] = 0;
+            rgba[1] = 128;
+            rgba[2] = 128;
             rgba[3] = 255;
+            break;
+
         case 7:
-            rgba[0] = 134;
-            rgba[1] = 0;
-            rgba[2] = 255;
+            rgba[0] = 50;
+            rgba[1] = 110;
+            rgba[2] = 50;
             rgba[3] = 255;
+            break;
+
         case 8:
-            rgba[0] = 134;
-            rgba[1] = 0;
-            rgba[2] = 255;
+            rgba[0] = 165;
+            rgba[1] = 40;
+            rgba[2] = 40;
             rgba[3] = 255;
+            break;
+
         case 9:
-            rgba[0] = 134;
+            rgba[0] = 255;
             rgba[1] = 0;
             rgba[2] = 255;
             rgba[3] = 255;
+            break;
+
         case 10:
-            rgba[0] = 134;
-            rgba[1] = 0;
-            rgba[2] = 255;
+            rgba[0] = 255;
+            rgba[1] = 193;
+            rgba[2] = 203;
             rgba[3] = 255;
+            break;
+
         case 11:
-            rgba[0] = 134;
-            rgba[1] = 0;
-            rgba[2] = 255;
+            rgba[0] = 64;
+            rgba[1] = 224;
+            rgba[2] = 208;
             rgba[3] = 255;
+            break;
+
         case 12:
-            rgba[0] = 134;
-            rgba[1] = 0;
-            rgba[2] = 255;
+            rgba[0] = 255;
+            rgba[1] = 215;
+            rgba[2] = 0;
             rgba[3] = 255;
+            break;
+
         case 13:
-            rgba[0] = 134;
-            rgba[1] = 0;
-            rgba[2] = 255;
+            rgba[0] = 192;
+            rgba[1] = 192;
+            rgba[2] = 192;
             rgba[3] = 255;
+            break;
+
         case 14:
-            rgba[0] = 134;
+            rgba[0] = 0;
             rgba[1] = 0;
-            rgba[2] = 255;
+            rgba[2] = 0;
             rgba[3] = 255;
+            break;
+
         case 15:
-            rgba[0] = 134;
-            rgba[1] = 0;
+            rgba[0] = 255;
+            rgba[1] = 255;
             rgba[2] = 255;
             rgba[3] = 255;
+            break;
+
 	}
 }
 
@@ -421,7 +485,7 @@ int main(int argc, char **argv) {
 
     struct Png image;
     read_png_file(argv[1], &image);
-    
+
     printf("\t========== Welcome to our programm ==========\n");
     printf("\t\t[1] -- To write triangle into photo\n");
     printf("\t\t[2] -- To write rectangle into photo\n");
@@ -444,7 +508,7 @@ int main(int argc, char **argv) {
                 printf("\nLine color\n");
                 color_line = chooseColor();
     			
-	    		if(color_line < 0 || color_line > 3)
+	    		if(color_line < 0 || color_line > 15)
 	    			printf("Invalid option! try again.\n");
     			
     		}while(color_line < 0 || color_line > 15);
