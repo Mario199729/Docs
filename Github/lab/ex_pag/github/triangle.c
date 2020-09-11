@@ -12,6 +12,7 @@ void drawLine(PNG *image, int x1, int y1, int x2, int y2, Color line, int colorT
     signy = y1 < y2 ? 1 : -1;
     int err = dx - dy;
     colorPixel(image, x2, y2, line, colorType);
+
     while (x != x2 || y != y2)
     {
         colorPixel(image, x, y, line, colorType);
@@ -19,6 +20,7 @@ void drawLine(PNG *image, int x1, int y1, int x2, int y2, Color line, int colorT
             for (int j = x - depth / 2; j < x + depth / 2; j++)
                 if (i > 0 && j > 0 && i < image->height && j < image->width)
                     colorPixel(image, j, i, line, colorType);
+        
         if (err * 2 > -dy)
         {
             err -= dy;

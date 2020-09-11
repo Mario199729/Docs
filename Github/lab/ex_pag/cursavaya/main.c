@@ -17,6 +17,7 @@ struct Png{
     png_bytep *row_pointers;
 };
 
+void DrawlineTriangle(struct Png *image, int rgba_line[], int x0, int y0, int x1, int y1, int typecolor);
 void write_triangle(struct Png *image, int rgba[], int rgba_line[], char fill);
 void write_rectangle(struct Png *image, int rgba[], int rgba_rectangle[]);
 void makeCollage(struct Png *image, int n, int m);
@@ -200,17 +201,7 @@ void write_png_file(char *file_name, struct Png *image) {
 }*/
 
 //***************************************
-void write_triangle(struct Png *image, int rgba[], int rgba_line[], char fill){
-	
-    int x0 = 430, y0 = 400, x1 = 130, y1 = 300;
-    int colorType;
-
-	if (png_get_color_type(image->png_ptr, image->info_ptr) == PNG_COLOR_TYPE_RGB)
-        colorType = 3;
-    
-    if (png_get_color_type(image->png_ptr, image->info_ptr) == PNG_COLOR_TYPE_RGBA)
-    	colorType = 4;
-
+void DrawlineTriangle(struct Png *image, int rgba_line[], int x0, int y0, int x1, int y1, int typecolor){
     int j = x0;
     int i = y0;
     int dx = abs(x1 - x0);
@@ -218,12 +209,21 @@ void write_triangle(struct Png *image, int rgba[], int rgba_line[], char fill){
     int controlx = (x0 < x1)? 1:-1;
     int controly = (y0 < y1)? 1:-1;
     int err = dx - dy;
+    int pixels = 2;
 
     for( ;(j != x1 || i != y1); )
     {
         png_byte*row  = image->row_pointers[i];
-        png_byte *ptr = &(row[j * colorType]);
+        png_byte *ptr = &(row[j * typecolor]);
         setColors(ptr, rgba_line);
+
+        for (int k = (i - pixels); k < (i + pixels); k++){
+            row  = image->row_pointers[k];
+            for (int l = (j - pixels); l < (j + pixels); l++){
+                ptr = &(row[l * typecolor]);
+                setColors(ptr, rgba_line);
+            }
+        }
 
         if (err * 2 > -dy)
         {
@@ -236,6 +236,88 @@ void write_triangle(struct Png *image, int rgba[], int rgba_line[], char fill){
             i += controly;
         }
     }
+}
+
+/*
+void DrawlineTriangle(struct Png *image, int rgba_line[], int x0, int y0, int x1, int y1, int typecolor){
+    int dx = abs(x1 - x0);
+    int dy = abs(y1 - y0);
+    int aux ,auy,aum;
+    if(y0 > y1){
+        y0 = y0 + y1;
+        y1 = y0 -y1;
+        y0 = y0 - y1;
+        x0 = x0 + x1;
+        x1 = x0 -x1;
+        x0 = x0 - x1;        
+    }
+    if(x0 > x1)
+        aum = -1;
+    else
+        aum = 1;
+
+    if (dx >= dy){
+        aux = (int)dx/dy;
+        auy = 1;
+    }else{
+        auy = (int)dy/dx;
+        aux = 1;
+    }
+
+    printf("X0 = %d Y0 = %d X1 = %d Y1 = %d\n",x0,y0,x1,y1);
+    printf("Aux = %d auY = %d \n",aux,auy);
+    int x = x0, terx = x0;
+    for(int y = y0 ; y <= y1; y++){
+        png_byte *row  = image->row_pointers[y];
+        png_byte *ptr = &(row[x * typecolor]);
+        setColors(ptr, rgba_line);        
+        if(y % auy == 0){
+            if(aum == 1){
+                terx += aux;
+                for( x =  terx - aux;  x<= terx; x++){
+                    row  = image->row_pointers[y];
+                    ptr = &(row[x * typecolor]);
+                    setColors(ptr, rgba_line);   
+                }
+            }else{
+                terx -= aux;
+                for( x =  terx + aux;  x >= terx; x--){
+                    row  = image->row_pointers[y];
+                    ptr = &(row[x * typecolor]);
+                    setColors(ptr, rgba_line);    
+                }                 
+            }
+        }
+    }
+
+}*/
+void Filltriangle(struct Png *image, int rgba[], int x0, int y0, int x1, int y1, int x2, int y2, int typecolor){
+    
+
+
+}
+
+void write_triangle(struct Png *image, int rgba[], int rgba_line[], char fill){
+    int typecolor;
+
+    /*20 400) (350 550) (250 130*/
+    int x0 = 20, y0 = 400;
+    int x1 = 350, y1 = 550;
+    int x2 = 250, y2 = 130;
+    
+	if (png_get_color_type(image->png_ptr, image->info_ptr) == PNG_COLOR_TYPE_RGB)
+        typecolor = 3;
+    
+    if (png_get_color_type(image->png_ptr, image->info_ptr) == PNG_COLOR_TYPE_RGBA)
+    	typecolor = 4;
+
+    DrawlineTriangle(image, rgba_line, x0, y0, x1, y1, typecolor);
+    DrawlineTriangle(image, rgba_line, x1, y1, x2, y2, typecolor);
+    DrawlineTriangle(image, rgba_line, x0, y0, x2, y2,typecolor);
+
+    if(fill == 'Y' || fill =='y'){
+        Filltriangle(image, rgba, x0, y0, x1, y1, x2, y2, typecolor);
+    };
 }
 //***************************************
 
@@ -444,7 +526,7 @@ void setColors(png_byte *ptr, int rgba[]){
     ptr[3] = rgba[3];
 }
 
-/*Menupara escolher uma cor de linha */
+/*Menu para escolher uma cor de linha */
 int chooseColor(){
 
     int color_line;
