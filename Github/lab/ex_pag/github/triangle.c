@@ -69,8 +69,10 @@ void drawTriangle(PNG *image, Pixel pix1, Pixel pix2, Pixel pix3, Color line,
     drawLine(image, pix1.x, pix1.y, pix2.x, pix2.y, line, colorType, depth);
     drawLine(image, pix2.x, pix2.y, pix3.x, pix3.y, line, colorType, depth);
     drawLine(image, pix3.x, pix3.y, pix1.x, pix1.y, line, colorType, depth);
+
     int x = (((pix1.x + pix2.x) / 2) + pix3.x) / 2;
     int y = (((pix1.y + pix2.y) / 2) + pix3.y) / 2;
+    
     if (flag)
         fillArea(image, x, y, fill, line, colorType);
 }

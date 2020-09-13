@@ -201,9 +201,10 @@ void write_png_file(char *file_name, struct Png *image) {
 }*/
 
 //***************************************
+
+
 void DrawlineTriangle(struct Png *image, int rgba_line[], int x0, int y0, int x1, int y1, int typecolor){
-    int j = x0;
-    int i = y0;
+    int j = x0,i = y0;
     int dx = abs(x1 - x0);
     int dy = abs(y1 - y0);
     int controlx = (x0 < x1)? 1:-1;
@@ -212,11 +213,11 @@ void DrawlineTriangle(struct Png *image, int rgba_line[], int x0, int y0, int x1
     int pixels = 2;
 
     for( ;(j != x1 || i != y1); )
-    {
+    {   
         png_byte*row  = image->row_pointers[i];
         png_byte *ptr = &(row[j * typecolor]);
         setColors(ptr, rgba_line);
-
+        printf("do tring j1 = %d\n",j);
         for (int k = (i - pixels); k < (i + pixels); k++){
             row  = image->row_pointers[k];
             for (int l = (j - pixels); l < (j + pixels); l++){
@@ -224,7 +225,6 @@ void DrawlineTriangle(struct Png *image, int rgba_line[], int x0, int y0, int x1
                 setColors(ptr, rgba_line);
             }
         }
-
         if (err * 2 > -dy)
         {
             err -= dy;
@@ -291,9 +291,104 @@ void DrawlineTriangle(struct Png *image, int rgba_line[], int x0, int y0, int x1
     }
 
 }*/
-void Filltriangle(struct Png *image, int rgba[], int x0, int y0, int x1, int y1, int x2, int y2, int typecolor){
-    
+void organizar(int *x0, int *y0, int *x1, int *y1){
+    *x0 += *x1;
+    *x1 = *x0 - *x1;
+    *x0 = *x0 - *x1;
 
+    *y0 += *y1;
+    *y1 = *y0 - *y1;
+    *y0 = *y0 - *y1;      
+
+}
+void Filltriangle(struct Png *image, int rgba[], int x0, int y0, int x1, int y1, int x2, int y2, int typecolor){
+        int hmax = 0;
+        printf("x0 = %d x1 = %d x2 = %d\n",x0,x1,x2);
+        printf("y0 = %d y1 = %d y2 = %d\n\n",y0,y1,y2);
+       if(x0 >= x1 && x0 >= x2){
+           if(x1 >= x2 )
+             organizar(&x1, &y1, &x0,&y0);
+            else
+                organizar(&x2, &y2, &x0,&y0);
+       }else if(x1 >= x0 && x1 >= x2){
+           if(x2 >= x0 )
+             organizar(&x2, &y2, &x0,&y0);
+       }else if(x1 >= x0)
+            organizar(&x1, &y1, &x0,&y0);
+
+ /*     if(y0 >= y1 && y0 >= y2)
+             hmax = y0;
+        if(y1>= y0 && y1 >= y2)            
+            hmax = y1;
+        if(y2 >= y0 && y2 >= y1)            
+            hmax = y2;     
+*/
+        int j = x0,i = y0;
+        int dx = abs(x1 - x0), dy = abs(y1 - y0);
+        int controlx = (x0 < x1)? 1:-1,controly = (y0 < y1)? 1:-1;
+        int err = dx - dy;
+
+        int j1 = x0,i1 = y0;
+        int dx1 = abs(x2 - x0), dy1 = abs(y2 - y0);
+        int controlx1 = (x0 < x2)? 1:-1,controly1 = (y0 < y2)? 1:-1;
+        int err1 = dx1 - dy1;    
+
+        int j2 = x1,i2 = y1;
+        int dx2 = abs(x2 - x1), dy2 = abs(y2 - y1);
+        int controlx2 = (x1 < x2)? 1:-1,controly2 = (y1 < y2)? 1:-1;
+        int err2 = dx2 - dy2;            
+        int k = 0, aum = 0,ter = 0;
+
+        for( ; (j != x1 || i != y1); )
+        {   
+            if(j > j1)
+                aum = -1;
+            else
+                aum = 1;
+            k = j;
+            //printf("valor de i = %d i1 = %d i2 = %d\n",i,i1,i2);
+            printf("valor de j1 = %d\n",j1);
+            while( (k != j1)){
+                png_byte *row  = image->row_pointers[i];
+                png_byte *ptr = &(row[k * typecolor]);
+                setColors(ptr, rgba);
+                k = k + aum;
+               // printf("valor de k = %d \n",k);
+            }
+
+            if (err * 2 > -dy)
+            {
+                err -= dy;
+                j += controlx;
+            }
+            else if (err * 2 < dx)
+            {
+                err += dx;
+                i += controly;
+            }
+    //media
+            if (err1 * 2 > -dy1)
+            {
+                err1 -= dy1;
+                j1 += controlx1;
+            }
+            else if (err1 * 2 < dx1)
+            {
+                err1 += dx1;
+                i1 += controly1;
+            }       
+    //media2
+            if (err2 * 2 > -dy2)
+            {
+                err2 -= dy2;
+                j2 += controlx2;
+            }
+            else if (err2 * 2 < dx2)
+            {
+                err2 += dx2;
+                i2 += controly2;
+            }                 
+        }
 
 }
 
@@ -311,8 +406,8 @@ void write_triangle(struct Png *image, int rgba[], int rgba_line[], char fill){
     if (png_get_color_type(image->png_ptr, image->info_ptr) == PNG_COLOR_TYPE_RGBA)
     	typecolor = 4;
 
-    DrawlineTriangle(image, rgba_line, x0, y0, x1, y1, typecolor);
-    DrawlineTriangle(image, rgba_line, x1, y1, x2, y2, typecolor);
+    //DrawlineTriangle(image, rgba_line, x0, y0, x1, y1, typecolor);
+    //DrawlineTriangle(image, rgba_line, x1, y1, x2, y2, typecolor);
     DrawlineTriangle(image, rgba_line, x0, y0, x2, y2,typecolor);
 
     if(fill == 'Y' || fill =='y'){

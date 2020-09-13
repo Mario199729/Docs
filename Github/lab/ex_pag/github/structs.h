@@ -17,6 +17,7 @@ typedef struct
     int x;
     int y;
 } Pixel;
+
 typedef struct
 {
     int red;
