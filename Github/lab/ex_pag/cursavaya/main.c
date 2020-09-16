@@ -211,10 +211,8 @@ void DrawlineTriangle(struct Png *image, int rgba_line[], int x0, int y0, int x1
     int controly = (y0 < y1)? 1:-1;
     int err = dx - dy;
     int pixels = 2;
-    printf("foca de x0 = %d y0 = %d \nx2 = %d y2 = %d\n",x0,y0,x1,y1);
-    for( ;(j != x1 || i != y1); )
-    { 
-        printf("valor de i = %d j = %d \n",i,j);   
+   
+    for( ;(j != x1 || i != y1); ){       
         png_byte*row  = image->row_pointers[i];
         png_byte *ptr = &(row[j * typecolor]);
         setColors(ptr, rgba_line);
@@ -225,72 +223,18 @@ void DrawlineTriangle(struct Png *image, int rgba_line[], int x0, int y0, int x1
                 setColors(ptr, rgba_line);
             }
         }
-        if (err * 2 > -dy)
-        {
+
+        if (err * 2 > -dy){
             err -= dy;
             j += controlx;
         }
-        else if (err * 2 < dx)
-        {
+        else if (err * 2 < dx){
             err += dx;
             i += controly;
         }
     }
 }
 
-/*
-void DrawlineTriangle(struct Png *image, int rgba_line[], int x0, int y0, int x1, int y1, int typecolor){
-    int dx = abs(x1 - x0);
-    int dy = abs(y1 - y0);
-    int aux ,auy,aum;
-    if(y0 > y1){
-        y0 = y0 + y1;
-        y1 = y0 -y1;
-        y0 = y0 - y1;
-        x0 = x0 + x1;
-        x1 = x0 -x1;
-        x0 = x0 - x1;        
-    }
-    if(x0 > x1)
-        aum = -1;
-    else
-        aum = 1;
-
-    if (dx >= dy){
-        aux = (int)dx/dy;
-        auy = 1;
-    }else{
-        auy = (int)dy/dx;
-        aux = 1;
-    }
-
-    printf("X0 = %d Y0 = %d X1 = %d Y1 = %d\n",x0,y0,x1,y1);
-    printf("Aux = %d auY = %d \n",aux,auy);
-    int x = x0, terx = x0;
-    for(int y = y0 ; y <= y1; y++){
-        png_byte *row  = image->row_pointers[y];
-        png_byte *ptr = &(row[x * typecolor]);
-        setColors(ptr, rgba_line);        
-        if(y % auy == 0){
-            if(aum == 1){
-                terx += aux;
-                for( x =  terx - aux;  x<= terx; x++){
-                    row  = image->row_pointers[y];
-                    ptr = &(row[x * typecolor]);
-                    setColors(ptr, rgba_line);   
-                }
-            }else{
-                terx -= aux;
-                for( x =  terx + aux;  x >= terx; x--){
-                    row  = image->row_pointers[y];
-                    ptr = &(row[x * typecolor]);
-                    setColors(ptr, rgba_line);    
-                }                 
-            }
-        }
-    }
-
-}*/
 void organizar(int *x0, int *y0, int *x1, int *y1){
     *x0 += *x1;
     *x1 = *x0 - *x1;
@@ -304,137 +248,110 @@ void organizar(int *x0, int *y0, int *x1, int *y1){
 void Filltriangle(struct Png *image, int rgba[], int x0, int y0, int x1, int y1, int x2, int y2, int typecolor)
 {
     int hmax = 0;
-    if (x0 >= x1 && x0 >= x2)
-    {
+    if (x0 >= x1 && x0 >= x2){
         if (x1 >= x2)
             organizar(&x1, &y1, &x0, &y0);
         else
             organizar(&x2, &y2, &x0, &y0);
     }
-    else if (x1 >= x0 && x1 >= x2)
-    {
+    else if (x1 >= x0 && x1 >= x2){
         if (x2 >= x0)
             organizar(&x2, &y2, &x0, &y0);
     }
     else if (x1 >= x0)
         organizar(&x1, &y1, &x0, &y0);
 
-    if (y0 >= y1 && y0 >= y2)
-    {
+  if (y0 >= y1 && y0 >= y2){
         if (y1 <= y2)
             organizar(&x1, &y1, &x2, &y2);
-    }
-    else if (y1 >= y0 && y1 >= y2)
+    }else if (y1 >= y0 && y1 >= y2)
         organizar(&x2, &y2, &x1, &y1);
-
+       /* printf("Xmed = %d Ymed = %d\n",x0,y1);
+        printf("X0 = %d Y0 = %d\n",x0,y0);
+        printf("X1 = %d Y1 = %d\n",x1,y1);
+        printf("X2 = %d Y2 = %d\n",x2,y2);
+        */
         int j = x0, i = y0;
         int dx = abs(x1 - x0), dy = abs(y1 - y0);
         int controlx = (x0 < x1) ? 1 : -1, controly = (y0 < y1) ? 1 : -1;
         int err = dx - dy;
 
-        printf("dentro de x0 = %d y0 = %d \nx2 = %d y2 = %d\n", x0, y0, x2, y2);
         int j1 = x0, i1 = y0;
         int dx1 = abs(x2 - x0), dy1 = abs(y2 - y0);
         int controlx1 = (x0 < x2) ? 1 : -1, controly1 = (y0 < y2) ? 1 : -1;
         int err1 = dx1 - dy1;
+       
+        int j2 = x1, i2 = y1;
+        int dx2 = abs(x2 - x1), dy2 = abs(y2 - y1);
+        int controlx2 = (x1 < x2) ? 1 : -1, controly2 = (y1 < y2) ? 1 : -1;
+        int err2 = dx2 - dy2;
 
-        int k = 0, aum = 0, ter = 0, k1 = 0, k3 = 0;
-        int cont = 0;
-        for (; (i != y1 || j != x1);)
-        {
+        int k = 0, aum = 0, cont = 0 , k1 = 0, k2 = 0;
+        for (; ( i1 != y2 || j1 != x2 );){
+            //if(cont != 0)
+             ///printf("i = %d j = %d i1 = %d j1 = %d\n",i,j,i1,j1);
             if (j > j1)
                 aum = -1;
             else
                 aum = 1;
             k = j;
-            //printf("valor de i1 = %d j1 = %d i2 = %d\n",i1,j1);
-            //printf("valor de i = %d i1 = %d i2 = %d\n",i,i1,i2);
-            while (k != j1)
-            {
-                png_byte *row = image->row_pointers[i];
-                png_byte *ptr = &(row[k * typecolor]);
-                setColors(ptr, rgba);
-                k = k + aum;
-            }
-            if (err * 2 > -dy)
-            {
-                err -= dy;
-                j += controlx;
-            }
-            else if (err * 2 < dx)
-            {
-                err += dx;
-                i += controly;
-            }
-            //media
-            if (err1 * 2 > -dy1)
-            {
-                err1 -= dy1;
-                j1 += controlx1;
-            }
-            else if (err1 * 2 < dx1)
-            {
-                err1 += dx1;
-                i1 += controly1;
-            }
-        }
-
-        //********************************************************/
-        
-        organizar(&x0, &y0, &x2, &y2);
-        j = x0, i = y0;
-        dx = abs(x1 - x0), dy = abs(y1 - y0);
-        controlx = (x0 < x1) ? 1 : -1, controly = (y0 < y1) ? 1 : -1;
-        err = dx - dy;
-
-       // organizar(&x0, &y0, &x2, &y2);
-         j1 = x0, i1 = y0;
-         dx1 = abs(x2 - x0), dy1 = abs(y2 - y0);
-         controlx1 = (x0 < x2) ? 1 : -1, controly1 = (y0 < y2) ? 1 : -1;
-         err1 = dx1 - dy1;
-        for (; (i != y1 || j != x1);){
-            if (j > j1)
-                aum = -1;
-            else
-                aum = 1;
-            k = j;
-            //k1 = i;
-            //for(int d = 0 ;d <2 ;d++){
-            while (k != j1 ){
+            while (k != j1){
                 png_byte *row = image->row_pointers[i1];
                 png_byte *ptr = &(row[k * typecolor]);
                 setColors(ptr, rgba);
                 k = k + aum;
-            //}k1 = i1;
-            //k = j;
+            } 
+            if(i > i1)
+                k1 = 2;
+            else if(i1 > i)
+                k2 = 2;
+            else{
+                 k2 = 0; k1 =0;
             }
-            if (err * 2 > -dy){
-                err -= dy;
-                j += controlx;
-            }else if (err * 2 < dx){
-                err += dx;
-                i += controly;
+            
+            if(k1 == 0){
+                printf("k1** i = %d j = %d i1 = %d j1 = %d\n",i,j,i1,j1);
+                if (err * 2 > -dy){
+                    err -= dy;
+                    j += controlx;
+                }
+                else if (err * 2 < dx){
+                    err += dx;
+                    i += controly;
+                }
             }
             //media
-            if (err1 * 2 > -dy1){
-                err1 -= dy1;
-                j1 += controlx1;
+            if(k2 == 0){  
+                printf("k2**  i = %d j = %d i1 = %d j1 = %d\n",i,j,i1,j1);
+                if (err1 * 2 > -dy1){
+                    err1 -= dy1;
+                    j1 += controlx1;
+                }
+                else if (err1 * 2 < dx1){
+                    err1 += dx1;
+                    i1 += controly1;
+                }
             }
-            else if (err1 * 2 < dx1){
-                err1 += dx1;
-                i1 += controly1;
+            if((i == y1 || j == x1) && (cont == 0)){
+                cont = 2;
+                i = i2; j = j2;
+                controlx = controlx2;
+                controly = controly2;
+                dx = dx2; dy = dy2;
+                err = err2;
             }
-        }        
-    }
+        }
+/**-----------------------------------*/
 
+}
     void write_triangle(struct Png * image, int rgba[], int rgba_line[], char fill)
     {
         int typecolor;
 
         /*20 400) (350 550) (250 130*/
-        int x0 = 20, y0 = 400;
-        int x1 = 350, y1 = 550;
-        int x2 = 250, y2 = 130;
+        int x0 = 690, y0 = 690;
+        int x1 = 30 , y1 = 100;
+        int x2 = 1250, y2 = 30;
 
         if (png_get_color_type(image->png_ptr, image->info_ptr) == PNG_COLOR_TYPE_RGB)
             typecolor = 3;
@@ -442,9 +359,9 @@ void Filltriangle(struct Png *image, int rgba[], int x0, int y0, int x1, int y1,
         if (png_get_color_type(image->png_ptr, image->info_ptr) == PNG_COLOR_TYPE_RGBA)
             typecolor = 4;
 
-         DrawlineTriangle(image, rgba_line, x0, y0, x1, y1, typecolor);
-         DrawlineTriangle(image, rgba_line, x1, y1, x2, y2, typecolor);
-        DrawlineTriangle(image, rgba_line, x0, y0, x2, y2, typecolor);
+        DrawlineTriangle(image, rgba_line, x0, y0, x1, y1, typecolor);
+        //DrawlineTriangle(image, rgba_line, x1, y1, x2, y2, typecolor);
+        //DrawlineTriangle(image, rgba_line, x0, y0, x2, y2, typecolor);
 
         if (fill == 'Y' || fill == 'y')
         {
