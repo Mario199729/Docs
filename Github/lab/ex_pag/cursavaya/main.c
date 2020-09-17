@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
-
+#define TEM 250
 #define PNG_DEBUG 3
 #include <png.h>
-
+int l[TEM],C[TEM] , c = 0;
 struct Png{
     int width, height;
     png_byte color_type;
@@ -24,7 +24,6 @@ void makeCollage(struct Png *image, int n, int m);
 void setColors(png_byte *ptr, int rgba[]);
 void colors(int *rgba, int color);
 int chooseColor();
-
 
 void read_png_file(char *file_name, struct Png *image) {
     int x,y;
@@ -202,7 +201,6 @@ void write_png_file(char *file_name, struct Png *image) {
 
 //***************************************
 
-
 void DrawlineTriangle(struct Png *image, int rgba_line[], int x0, int y0, int x1, int y1, int typecolor){
     int j = x0,i = y0;
     int dx = abs(x1 - x0);
@@ -210,9 +208,15 @@ void DrawlineTriangle(struct Png *image, int rgba_line[], int x0, int y0, int x1
     int controlx = (x0 < x1)? 1:-1;
     int controly = (y0 < y1)? 1:-1;
     int err = dx - dy;
-    int pixels = 2;
-   
-    for( ;(j != x1 || i != y1); ){       
+    int pixels = 2, cont = 0; c = 0;
+    printf("Triang X0 = %d Y0 = %d\n",x0,y0); 
+    printf("Triang X1 = %d Y1 = %d\n",x1,y1);   
+    for( ;( j != x1 || i != y1 ); ){  
+        if(c < TEM){   
+           l[c] = j; C[c] = i;
+//           printf("fora i = %d j = %d \n",C[c],l[c]); 
+        }  
+            
         png_byte*row  = image->row_pointers[i];
         png_byte *ptr = &(row[j * typecolor]);
         setColors(ptr, rgba_line);
@@ -223,7 +227,6 @@ void DrawlineTriangle(struct Png *image, int rgba_line[], int x0, int y0, int x1
                 setColors(ptr, rgba_line);
             }
         }
-
         if (err * 2 > -dy){
             err -= dy;
             j += controlx;
@@ -232,7 +235,9 @@ void DrawlineTriangle(struct Png *image, int rgba_line[], int x0, int y0, int x1
             err += dx;
             i += controly;
         }
+        c++;
     }
+    printf("\n\n");
 }
 
 void organizar(int *x0, int *y0, int *x1, int *y1){
@@ -245,32 +250,29 @@ void organizar(int *x0, int *y0, int *x1, int *y1){
     *y0 = *y0 - *y1;      
 
 }
-void Filltriangle(struct Png *image, int rgba[], int x0, int y0, int x1, int y1, int x2, int y2, int typecolor)
-{
-    int hmax = 0;
-    if (x0 >= x1 && x0 >= x2){
-        if (x1 >= x2)
-            organizar(&x1, &y1, &x0, &y0);
-        else
-            organizar(&x2, &y2, &x0, &y0);
-    }
-    else if (x1 >= x0 && x1 >= x2){
-        if (x2 >= x0)
-            organizar(&x2, &y2, &x0, &y0);
-    }
-    else if (x1 >= x0)
-        organizar(&x1, &y1, &x0, &y0);
 
-  if (y0 >= y1 && y0 >= y2){
-        if (y1 <= y2)
-            organizar(&x1, &y1, &x2, &y2);
-    }else if (y1 >= y0 && y1 >= y2)
-        organizar(&x2, &y2, &x1, &y1);
-       /* printf("Xmed = %d Ymed = %d\n",x0,y1);
-        printf("X0 = %d Y0 = %d\n",x0,y0);
-        printf("X1 = %d Y1 = %d\n",x1,y1);
-        printf("X2 = %d Y2 = %d\n",x2,y2);
-        */
+void Filltriangle(struct Png *image, int rgba[], int x0, int y0, int x1, int y1, int x2, int y2, int typecolor){
+
+        int hmax = 0;
+        if (x0 >= x1 && x0 >= x2){
+            if (x1 >= x2)
+                organizar(&x1, &y1, &x0, &y0);
+            else
+                organizar(&x2, &y2, &x0, &y0);
+        }
+        else if (x1 >= x0 && x1 >= x2){
+            if (x2 >= x0)
+                organizar(&x2, &y2, &x0, &y0);
+        }
+        else if (x1 >= x0)
+            organizar(&x1, &y1, &x0, &y0);
+
+        if (y0 >= y1 && y0 >= y2){
+            if (y1 <= y2)
+                organizar(&x1, &y1, &x2, &y2);
+        }else if (y1 >= y0 && y1 >= y2)
+            organizar(&x2, &y2, &x1, &y1);
+
         int j = x0, i = y0;
         int dx = abs(x1 - x0), dy = abs(y1 - y0);
         int controlx = (x0 < x1) ? 1 : -1, controly = (y0 < y1) ? 1 : -1;
@@ -285,44 +287,37 @@ void Filltriangle(struct Png *image, int rgba[], int x0, int y0, int x1, int y1,
         int dx2 = abs(x2 - x1), dy2 = abs(y2 - y1);
         int controlx2 = (x1 < x2) ? 1 : -1, controly2 = (y1 < y2) ? 1 : -1;
         int err2 = dx2 - dy2;
-
-        int k = 0, aum = 0, cont = 0 , k1 = 0, k2 = 0;
-        for (; ( i1 != y2 || j1 != x2 );){
-            //if(cont != 0)
-             ///printf("i = %d j = %d i1 = %d j1 = %d\n",i,j,i1,j1);
-            if (j > j1)
+        int k = 0, aum = 0, cont = 0 , k1 = 0, k2 = 0, contador = 0;
+            
+        for (; (i1 != y2 || j1 != x2);){
+            
+            if(contador + 1 == TEM)
+                break;
+            //printf("Dentro C = %d L = %d i1 = %d j1 = %d\n",C[contador],l[contador],i1,j1); 
+            if (l[contador] > j1)
                 aum = -1;
             else
                 aum = 1;
-            k = j;
-            while (k != j1){
+            k = j1;
+            while (k != l[contador]){
                 png_byte *row = image->row_pointers[i1];
                 png_byte *ptr = &(row[k * typecolor]);
                 setColors(ptr, rgba);
                 k = k + aum;
             } 
-            if(i > i1)
+            if(C[contador] > i1)
                 k1 = 2;
-            else if(i1 > i)
+            else if(i1 > C[contador])
                 k2 = 2;
             else{
                  k2 = 0; k1 =0;
             }
             
             if(k1 == 0){
-                printf("k1** i = %d j = %d i1 = %d j1 = %d\n",i,j,i1,j1);
-                if (err * 2 > -dy){
-                    err -= dy;
-                    j += controlx;
-                }
-                else if (err * 2 < dx){
-                    err += dx;
-                    i += controly;
-                }
+                contador++;
             }
             //media
             if(k2 == 0){  
-                printf("k2**  i = %d j = %d i1 = %d j1 = %d\n",i,j,i1,j1);
                 if (err1 * 2 > -dy1){
                     err1 -= dy1;
                     j1 += controlx1;
@@ -341,13 +336,13 @@ void Filltriangle(struct Png *image, int rgba[], int x0, int y0, int x1, int y1,
                 err = err2;
             }
         }
-/**-----------------------------------*/
-
+    printf("terminar X0 = %d Y0 = %d\n",x0,y0); 
+    printf("terminar X2 = %d Y2 = %d\n",x2,y2);   
 }
-    void write_triangle(struct Png * image, int rgba[], int rgba_line[], char fill)
+
+void write_triangle(struct Png * image, int rgba[], int rgba_line[], char fill)
     {
         int typecolor;
-
         /*20 400) (350 550) (250 130*/
         int x0 = 690, y0 = 690;
         int x1 = 30 , y1 = 100;
@@ -370,7 +365,7 @@ void Filltriangle(struct Png *image, int rgba[], int x0, int y0, int x1, int y1,
     }
     //***************************************
 
-    void write_rectangle(struct Png * image, int rgba[], int rgba_rectangle[])
+void write_rectangle(struct Png * image, int rgba[], int rgba_rectangle[])
     {
         int x, y, pixels = 8, count = 0, k = 0;
         char fill = 'y';
@@ -441,7 +436,7 @@ void Filltriangle(struct Png *image, int rgba[], int x0, int y0, int x1, int y1,
         }
     }
 
-    void makeCollage(struct Png * image, int n, int m)
+void makeCollage(struct Png * image, int n, int m)
     {
         int height = image->height;
         int width = image->width;
@@ -471,7 +466,7 @@ void Filltriangle(struct Png *image, int rgba[], int x0, int y0, int x1, int y1,
         free(rowPointers);
     }
 
-    void colors(int *rgba, int color)
+void colors(int *rgba, int color)
     {
         switch (color)
         {
