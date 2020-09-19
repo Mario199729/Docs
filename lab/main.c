@@ -308,9 +308,10 @@ void triangle(struct Png *image){
 }
 
 void rectang(struct Png *image){
-    int rgb [3] = {0,255,0}; 
-    int ar = 0;
+    int image_color [3] = {0, 0, 0}; 
     int typecolor;
+    int A[2] = {0};
+    int height = 0, h,hf = 0, heightf  = 0 , lengthk = 0 , lengthj = 0;
 
     if(png_get_color_type(image->png_ptr, image->info_ptr) == PNG_COLOR_TYPE_RGBA)
         typecolor = 4;
@@ -320,23 +321,79 @@ void rectang(struct Png *image){
         fprintf(stderr, "error\n");
         exit(0);
     }
-
-    int c = 0, k = 0, w;
-
-    for(int i = 0; i < image->height ; i++){
+    int k = 0, contador = 0;
+    for(int i = 0; i < image->height; i++){
         png_bytep row = image->row_pointers[i];
-        for(int j = 0; j < image->height ; j++){
-            png_bytep ptr = &row[j * typecolor];
-            if ((rgb[0] == ptr[0]) && (rgb[1] == ptr[1]) && (rgb[2] == ptr[2])){
-                ptr[0] = 0;ptr[1] = 0;ptr[1] = 0;
-                if(typecolor == 4)
-                    ptr[3] = 255;
+        for(int j = 0; j < image->width; j++){
+            png_bytep ptr = &(row[j * typecolor]);
+            if(image_color[0] == ptr[0] && image_color[1] == ptr[1] && image_color[2] == ptr[2]){
+                k = j;
+                while((image_color[0] == ptr[0] && image_color[1] == ptr[1] && image_color[2] == ptr[2]) && (k < image->width)){
+                    k++;
+                    ptr = &row[k * typecolor];
+                }
+                if((j != lengthj && k != lengthk) || (j == lengthj && k != lengthk)/* || (j != lengthj && k == lengthk)*/){
+                    
+                    for(int t = i + 1; t < image->height; t++){
+                        row = image->row_pointers[t];
+                        for(int cont = j; cont < k; cont++){
+                            ptr = &(row[cont * typecolor]);
+                            if(!(image_color[0] == ptr[0] && image_color[1] == ptr[1] && image_color[2] == ptr[2])){
+                                h = i; hf = t;
+                                t = image->height;
+                                break;
+                            }
+                        }
+                    }
+                    contador++;
+                    printf("%d) i = %d j = %d \n",contador,i,j);
+
+                    if(A[0] == 0){
+                        A[0] = (k - j - 1) * (hf - i -1);
+                        lengthj = j;
+                        lengthk = k;
+                        heightf = hf;
+                        height = i;
+                        
+                    }else {
+                        int altura = 0;
+                        if(j >= lengthj && lengthk > k){
+                            altura = height;
+                        }else{
+                            altura = i;
+                            A[1] = (k - j - 1) * (hf - altura - 1); 
+                            if(A[0] < A[1]){
+                                heightf = hf;
+                                A[0] = A[1];
+                                A[1] = 0;
+                                lengthj = j;
+                                height = altura;
+                                lengthk = k;
+                            }  
+                        }                                            
+                    }
+
+                }j = k;
             }
-        }        
+            //hhhhhhhhhhhhhh
+        }
     }
+
+
+    for(int i = height; i < heightf; i++){
+        png_bytep row = image->row_pointers[i];
+        for(int j = lengthj; j < lengthk; j++){
+            png_bytep ptr = &(row[j * typecolor]);
+            ptr[0] = ptr[1] = ptr[2] = 255;
+            if(typecolor == 4 )
+                ptr[3] = 255;
+        }
+
+    }
+
 } 
 
-void Collage(struct Png * image, int n, int m){
+void Collage(struct Png *image, int n, int m){
 
     int height = image->height;
     int width = image->width;
@@ -388,8 +445,8 @@ int main(int argc, char **argv){
     struct Png image;
     read_png_file(argv[1], &image);
     // triangle(&image);
-    // rectang(&image);
-    Collage(&image, 2, 1);
+    rectang(&image);
+    // Collage(&image, 2, 1);
     write_png_file(argv[2], &image);
     return 0;
 }
