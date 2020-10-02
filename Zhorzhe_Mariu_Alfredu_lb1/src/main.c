@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <regex.h>
+
+
 char *read_sentence()
 {
     int size = 10;
